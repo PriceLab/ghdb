@@ -1,0 +1,15 @@
+geneHancer.v4.7.allGenes.RData:
+  category: enhancers
+  format: bed3 + value + associatedGene
+  displayName: GeneHancer (all tissues)
+  variableName: tbl.enhancers
+  columns:
+    - chrom: character
+    - start:  integer
+    - end: integer
+    - type: character
+    - combinedScore: numeric
+    - geneSymbol: character
+
+
+
