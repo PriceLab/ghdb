@@ -5,7 +5,7 @@
 \alias{listTissues}
 \title{Return a character vector containing all of the tissues known to GeneHancer}
 \usage{
-\S4method{listTissues}{GeneHancerDB}(obj, targetGene = NA)
+\S4method{listTissues}{GeneHancerDB}(obj, targetGene)
 }
 \arguments{
 \item{obj}{An object of class GeneHancerDB}

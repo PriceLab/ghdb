@@ -20,7 +20,10 @@
 #------------------------------------------------------------------------------------------------------------------------
 setGeneric('retrieveEnhancersFromDatabase', signature='obj', function(obj, targetGene, tissues)
               standardGeneric('retrieveEnhancersFromDatabase'))
-setGeneric('listTissues', signature='obj', function(obj, targetGene=NA) standardGeneric('listTissues'))
+setGeneric('listTissues', signature='obj', function(obj, targetGene) standardGeneric('listTissues'))
+setGeneric('getEnhancerTissues', signature='obj', function(obj, targetGene) standardGeneric ('getEnhancerTissues'))
+setGeneric('getEnhancers',  signature='obj', function(obj, targetGene, tissues="all", maxSize=10000) standardGeneric ('getEnhancers'))
+
 #------------------------------------------------------------------------------------------------------------------------
 #' Create a GeneHancerDB connection
 #'
@@ -30,13 +33,10 @@ setGeneric('listTissues', signature='obj', function(obj, targetGene=NA) standard
 #'
 #' @export
 #'
-#'
 GeneHancerDB <- function()
 {
-
    db <- NA_character_;
    state <- new.env(parent=emptyenv())
-
    .GeneHancerDB(db=db, state=state)
 
 } # ctor
@@ -153,7 +153,7 @@ setMethod('retrieveEnhancersFromDatabase',  'GeneHancerDB',
 
 setMethod('listTissues', 'GeneHancerDB',
 
-    function(obj, targetGene=NA){
+    function(obj, targetGene){
        query <- "select distinct tissue from tissues"
        if(!is.na(targetGene)){
           query.p1 <- "select distinct t.tissue from associations as a, tissues as t where "
@@ -165,5 +165,50 @@ setMethod('listTissues', 'GeneHancerDB',
        dbDisconnect(db)
        return(result)
        })
+
+#------------------------------------------------------------------------------------------------------------------------
+#' Get all the enhancer tissues included in the current genehancer
+#'
+#' @rdname getEnhancerTissues
+#' @aliases getEnhancerTissues
+#'
+#' @param obj An object of class GeneHancerDB
+#' @param targetGene a character string
+#'
+#' @seealso getEnhancers
+#'
+#' @export
+setMethod('getEnhancerTissues',  'GeneHancerDB',
+
+     function(obj, targetGene){
+        listTissues(obj, targetGene)
+        })
+
+#------------------------------------------------------------------------------------------------------------------------
+#' Get all the enhancer regions for the gene
+#'
+#' @rdname getEnhancers
+#' @aliases getEnhancers
+#'
+#' @param obj An object of class GeneHancerDB
+#' @param targetGene default NA, in which case the current object's targetGene is used.
+#'
+#' @seealso setTargetGene
+#'
+#' @export
+
+setMethod('getEnhancers',  'GeneHancerDB',
+
+     function(obj, targetGene, tissues="all", maxSize=10000){
+        if(is.null(targetGene)) return(data.frame())
+        tbl <- retrieveEnhancersFromDatabase(obj, targetGene, tissues)
+        if(nrow(tbl) == 0)
+           return(data.frame())
+        size <- with(tbl, 1 + end - start)
+        deleters <- which(size > maxSize)
+        if(length(deleters) > 0)
+           tbl <- tbl[-deleters,]
+        tbl
+        })
 
 #------------------------------------------------------------------------------------------------------------------------
