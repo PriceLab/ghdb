@@ -89,7 +89,8 @@ setMethod('retrieveEnhancersFromDatabase',  'GeneHancerDB',
                         "AND e.ghid=a.ghid")
         query <- sprintf(query, targetGene, tissueClause)
 
-        db <- dbConnect(PostgreSQL(), user= "trena", password="trena", dbname="gh411", host="khaleesi")
+        db <- dbConnect(PostgreSQL(), user= "trena", password="trena", dbname="gh411",
+                        host="khaleesi.systemsbiology.net", port="5432")
         tbl <- dbGetQuery(db, query)
         dbDisconnect(db)
 
