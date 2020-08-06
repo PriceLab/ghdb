@@ -1,6 +1,6 @@
-# TrenaProject
-an abstract base class for (usually) tissue-specifi trena projects,
-providing access to ChiP-seq, enhancer, transcript and open chromatin
-data.  TrenaProjectIGAP is an example subclass.
+# ghdb: a simple R class providing access to an ISB-local copy of GeneHancer v4.11
+See inst/unitTests/test_GeneHancerDB.R for multiple examples of using this package.
+
+
 
 
