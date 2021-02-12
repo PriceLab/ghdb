@@ -11,6 +11,9 @@
 #'
 #' @import methods
 
+# GENEHANCER_VERSION <- "gh411"
+GENEHANCER_VERSION <- "gh50"
+
 .GeneHancerDB <- setClass("GeneHancerDB",
                           representation = representation(
                              db="character",
@@ -89,8 +92,9 @@ setMethod('retrieveEnhancersFromDatabase',  'GeneHancerDB',
                         "AND e.ghid=a.ghid")
         query <- sprintf(query, targetGene, tissueClause)
 
-        db <- dbConnect(PostgreSQL(), user= "trena", password="trena", dbname="gh411",
-                        host="khaleesi.systemsbiology.net", port="5432")
+         db <- dbConnect(PostgreSQL(), user= "trena", password="trena",
+                         dbname=GENEHANCER_VERSION, #"gh411",
+                         host="khaleesi.systemsbiology.net", port="5432")
         tbl <- dbGetQuery(db, query)
         dbDisconnect(db)
 
@@ -161,7 +165,9 @@ setMethod('listTissues', 'GeneHancerDB',
           query.p2 <- sprintf("a.symbol='%s' AND a.ghid=t.ghid", targetGene)
           query <- paste0(query.p1, query.p2)
           }
-       db <- dbConnect(PostgreSQL(), user= "trena", password="trena", dbname="gh411", host="khaleesi")
+       db <- dbConnect(PostgreSQL(), user= "trena", password="trena",
+                       dbname=GENEHANCER_VERSION, #"gh411",
+                       host="khaleesi")
        result <- dbGetQuery(db, query)$tissue
        dbDisconnect(db)
        return(result)

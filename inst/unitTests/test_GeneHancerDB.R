@@ -37,8 +37,9 @@ test_listTissues <- function()
    checkTrue(all(c("placenta", "Placenta") %in% tissues))
 
    tissues.gata2 <- listTissues(ghdb, targetGene="GATA2")
-   checkTrue(length(tissues.gata2) > 120)
-   checkTrue(length(tissues.gata2) < 130)
+     # 120-130 with gh 411, 152 with v50
+   checkTrue(length(tissues.gata2) > 150)
+   checkTrue(length(tissues.gata2) < 160)
 
 } # test_listTissues
 #------------------------------------------------------------------------------------------------------------------------
@@ -67,16 +68,16 @@ test_foxo6 <- function()
    tissues <-  c("placenta", "Placenta")
    tbl <- retrieveEnhancersFromDatabase(ghdb, "FOXO6", tissues)
    checkTrue(is.data.frame(tbl))
-   checkEquals(nrow(tbl), 13)
+   checkEquals(nrow(tbl), 23)   # 23 for v50, 13 for v411
    checkTrue(all(tissues %in% tbl$tissue))
    checkEquals(length(which(duplicated(tbl$sig))), 0)  # no duplicated regions
    checkTrue(length(grep(";", tbl$tissue)) > 0)        # 4 instances of "Placenta;placenta"
 
    tbl.all <- retrieveEnhancersFromDatabase(ghdb, "FOXO6", tissues="all")
    checkTrue(is.data.frame(tbl.all))
-   checkEquals(nrow(tbl.all), 43)
+   checkEquals(nrow(tbl.all), 71)   # 43 for v411, 71 for v50
    checkEquals(length(which(duplicated(tbl.all$sig))), 0)  # no duplicated regions
-   checkTrue(max(nchar(tbl.all$tissue)) > 2000)
+   checkTrue(max(nchar(tbl.all$tissue)) > 1200)
    checkTrue(length(grep(";", tbl.all$tissue)) > 40)       # most tissue values are semicolor separated multiples
 
 } # test_gata6
@@ -120,11 +121,11 @@ test_getEnhancers <- function()
    tbl.trem2.all <- getEnhancers(ghdb, "TREM2")
    checkTrue(all(tbl.trem2.all$geneSymbol == "TREM2"))
    dim(tbl.trem2.all)
-   checkTrue(nrow(tbl.trem2.all) > 8)
+   checkTrue(nrow(tbl.trem2.all) > 8)   # gh50: 16
 
    tbl.mef2c <- getEnhancers(ghdb, "MEF2C")
    checkTrue(all(tbl.mef2c$geneSymbol == "MEF2C"))
-   checkTrue(nrow(tbl.mef2c) > 12)
+   checkTrue(nrow(tbl.mef2c) > 190)  # gh411: 12 , gh50: 201
 
    suppressWarnings(tbl.bogus <- getEnhancers(ghdb, "bogus99"))
    checkEquals(nrow(tbl.bogus), 0)
@@ -140,10 +141,10 @@ test_getEnhancers <- function()
    tbl.hoxa5 <- getEnhancers(ghdb, "HOXA5", maxSize=100000)
    checkEquals(nrow(tbl.hoxa5), 11)
    sizes <- with(tbl.hoxa5, 1 + end - start)
-   checkEquals(length(which(sizes > 10000)), 1)
+   checkEquals(length(which(sizes > 10000)), 2)  # gh411: 1   gh50: 2
 
    tbl.hoxa5 <- getEnhancers(ghdb, "HOXA5", maxSize=10000)
-   checkEquals(nrow(tbl.hoxa5), 10)
+   checkEquals(nrow(tbl.hoxa5), 9)   # 10 with gh411
    sizes <- with(tbl.hoxa5, 1 + end - start)
    checkEquals(length(which(sizes > 10000)), 0)
 

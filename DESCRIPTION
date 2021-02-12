@@ -1,8 +1,8 @@
 Package: ghdb
 Type: Package
 Title: ghdb: GeneHancer database
-Version: 1.0.3
-Date: 2020-08-06
+Version: 1.0.4
+Date: 2021-02-11
 Author: Paul Shannon
 Maintainer: Paul Shannon<pshannon@systemsbiology.org>
 Imports:
@@ -13,4 +13,4 @@ Description: programmatic access to a local installation of GeneHancer cata
 Depends: R (>= 3.5.0)
 License: Artistic-2.0
 Encoding: UTF-8
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
