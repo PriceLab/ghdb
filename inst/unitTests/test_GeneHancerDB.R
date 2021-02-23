@@ -19,6 +19,7 @@ runTests <- function()
 
    test_getEnhancers()
 
+   test_queryByRegion()
 
 } # runTests
 #------------------------------------------------------------------------------------------------------------------------
@@ -149,6 +150,25 @@ test_getEnhancers <- function()
    checkEquals(length(which(sizes > 10000)), 0)
 
 } # test_getEnhancers
+#------------------------------------------------------------------------------------------------------------------------
+test_queryByRegion <- function()
+{
+    message(sprintf("--- test_queryByRegion"))
+
+    chrom <- '1'
+    start <- 173595097
+    end   <- 173692966
+
+    tbl <- queryByRegion(ghdb, chrom, start, end)
+    checkTrue(nrow(tbl) > 50)
+    checkTrue(all(tbl$start >= start))
+    checkTrue(all(tbl$end <= end))
+
+    tbl.best <- subset(tbl, combinedscore > 500)
+    checkTrue(nrow(tbl.best) > 10)   # 15 with gh version 5.0
+    checkTrue(nrow(tbl.best) < 20)
+
+} # test_queryByRegion
 #------------------------------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

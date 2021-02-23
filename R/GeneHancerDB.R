@@ -26,7 +26,7 @@ setGeneric('retrieveEnhancersFromDatabase', signature='obj', function(obj, targe
 setGeneric('listTissues', signature='obj', function(obj, targetGene) standardGeneric('listTissues'))
 setGeneric('getEnhancerTissues', signature='obj', function(obj, targetGene) standardGeneric ('getEnhancerTissues'))
 setGeneric('getEnhancers',  signature='obj', function(obj, targetGene, tissues="all", maxSize=10000) standardGeneric ('getEnhancers'))
-
+setGeneric('queryByRegion', signature='obj', function(obj, chrom, start, end) standardGeneric('queryByRegion'))
 #------------------------------------------------------------------------------------------------------------------------
 #' Create a GeneHancerDB connection
 #'
@@ -92,9 +92,9 @@ setMethod('retrieveEnhancersFromDatabase',  'GeneHancerDB',
                         "AND e.ghid=a.ghid")
         query <- sprintf(query, targetGene, tissueClause)
 
-         db <- dbConnect(PostgreSQL(), user= "trena", password="trena",
-                         dbname=GENEHANCER_VERSION, #"gh411",
-                         host="khaleesi.systemsbiology.net", port="5432")
+        db <- dbConnect(PostgreSQL(), user= "trena", password="trena",
+                        dbname=GENEHANCER_VERSION, #"gh411",
+                        host="khaleesi.systemsbiology.net", port="5432")
         tbl <- dbGetQuery(db, query)
         dbDisconnect(db)
 
@@ -215,6 +215,50 @@ setMethod('getEnhancers',  'GeneHancerDB',
         deleters <- which(size > maxSize)
         if(length(deleters) > 0)
            tbl <- tbl[-deleters,]
+        tbl
+        })
+
+#------------------------------------------------------------------------------------------------------------------------
+#' Get all the enhancer regions for the gene
+#'
+#' @rdname queryByRegion
+#' @aliases queryByRegion
+#'
+#' @param obj An object of class GeneHancerDB
+#' @param chrom character, the chromosome name WITHOUT leading 'chr'
+#' @param start numeric the starting base
+#' @param end numeric the ending base
+#'
+#' @export
+
+setMethod('queryByRegion',  'GeneHancerDB',
+
+     function(obj, chrom, start, end){
+        query <- sprintf("select e.chr as chrom,
+                          e.element_start as start,
+                          e.element_end as end,
+                          e.ghid as ghid,
+                          e.type as class,
+                          a.combined_score as combinedScore,
+                          a.is_elite as elite,
+                          a.symbol as gene,
+                          a.eqtl_score as eqtl,
+                          a.chic_score as HiC,
+                          a.erna_score as erna,
+                          a.expression_score as coexpression
+                          from elements AS e,
+                          associations AS a
+                          where e.chr='%s'
+                          AND e.element_start >= %d
+                          AND e.element_end <= %d
+                          AND a.ghid=e.ghid", chrom, start, end)
+
+        db <- dbConnect(PostgreSQL(), user= "trena", password="trena",
+                        dbname=GENEHANCER_VERSION, #"gh411",
+                        host="khaleesi.systemsbiology.net", port="5432")
+        tbl <- dbGetQuery(db, query)
+        dbDisconnect(db)
+        tbl$width <- with(tbl, 1 + end - start)
         tbl
         })
 
