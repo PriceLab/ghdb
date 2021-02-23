@@ -234,6 +234,7 @@ setMethod('getEnhancers',  'GeneHancerDB',
 setMethod('queryByRegion',  'GeneHancerDB',
 
      function(obj, chrom, start, end){
+        chrom <- sub("chr", "", chrom)
         query <- sprintf("select e.chr as chrom,
                           e.element_start as start,
                           e.element_end as end,
@@ -258,7 +259,12 @@ setMethod('queryByRegion',  'GeneHancerDB',
                         host="khaleesi.systemsbiology.net", port="5432")
         tbl <- dbGetQuery(db, query)
         dbDisconnect(db)
-        tbl$width <- with(tbl, 1 + end - start)
+
+        if(nrow(tbl) > 0){
+           tbl$width <- with(tbl, 1 + end - start)
+           if(!grepl("chr", tbl$chrom[1]))
+               tbl$chrom <- sprintf("chr%s", tbl$chrom)
+           } # non-empty result
         tbl
         })
 

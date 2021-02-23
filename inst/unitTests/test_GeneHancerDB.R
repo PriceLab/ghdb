@@ -155,12 +155,13 @@ test_queryByRegion <- function()
 {
     message(sprintf("--- test_queryByRegion"))
 
-    chrom <- '1'
+    chrom <- 'chr1'
     start <- 173595097
     end   <- 173692966
 
     tbl <- queryByRegion(ghdb, chrom, start, end)
     checkTrue(nrow(tbl) > 50)
+    checkTrue(all(tbl$chrom == chrom))
     checkTrue(all(tbl$start >= start))
     checkTrue(all(tbl$end <= end))
 
