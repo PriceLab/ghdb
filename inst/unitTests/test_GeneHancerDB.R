@@ -20,6 +20,7 @@ runTests <- function()
    test_getEnhancers()
 
    test_queryByRegion()
+   test_to.hg19()
 
 } # runTests
 #------------------------------------------------------------------------------------------------------------------------
@@ -170,6 +171,20 @@ test_queryByRegion <- function()
     checkTrue(nrow(tbl.best) < 20)
 
 } # test_queryByRegion
+#------------------------------------------------------------------------------------------------------------------------
+test_to.hg19 <- function()
+{
+   message(sprintf("--- test_to.hg19"))
+
+   tbl.all <- retrieveEnhancersFromDatabase(ghdb, "FOXO6", tissues="all")
+   dim(tbl.all) # 71 16
+
+   tbl.hg19 <- to.hg19(ghdb, tbl.all)
+   checkEquals(dim(tbl.all), dim(tbl.hg19))
+   checkTrue(length(intersect(tbl.all$start, tbl.hg19$start)) == 0)
+   checkTrue(all(tbl.all$chrom == tbl.hg19$chrom))
+
+} # test_to.hg19
 #------------------------------------------------------------------------------------------------------------------------
 if(!interactive())
    runTests()

@@ -2,6 +2,8 @@
 #' @import RPostgreSQL
 #' @import org.Hs.eg.db
 #' @importFrom methods new
+#' @import GenomicRanges
+#' @importFrom rtracklayer liftOver import.chain
 #'
 #' @title GeneHancerDB
 #------------------------------------------------------------------------------------------------------------------------
@@ -27,6 +29,7 @@ setGeneric('listTissues', signature='obj', function(obj, targetGene) standardGen
 setGeneric('getEnhancerTissues', signature='obj', function(obj, targetGene) standardGeneric ('getEnhancerTissues'))
 setGeneric('getEnhancers',  signature='obj', function(obj, targetGene, tissues="all", maxSize=10000) standardGeneric ('getEnhancers'))
 setGeneric('queryByRegion', signature='obj', function(obj, chrom, start, end) standardGeneric('queryByRegion'))
+setGeneric('to.hg19', signature='obj', function(obj, tbl) standardGeneric('to.hg19'))
 #------------------------------------------------------------------------------------------------------------------------
 #' Create a GeneHancerDB connection
 #'
@@ -269,3 +272,40 @@ setMethod('queryByRegion',  'GeneHancerDB',
         })
 
 #------------------------------------------------------------------------------------------------------------------------
+#' hg38 coordinates are default, but sometimes we need hg19.
+#'
+#' @rdname to.hg19
+#' @aliases to.hg19
+#'
+#' @param obj An object of class GeneHancerDB
+#' @param data.frame with (at least) chrom, start, end
+#'
+#' @export
+
+setMethod('to.hg19',  'GeneHancerDB',
+
+     function(obj, tbl){
+
+        if(!grepl("chr", tbl$chrom[1]))
+             tbl$chrom <- paste0("chr", tbl$chrom)
+
+        chain.file <- system.file(package="ghdb", "extdata", "hg38ToHg19.over.chain")
+        stopifnot(file.exists(chain.file))
+        chain <- import.chain(chain.file)
+        gr <- GRanges(tbl)
+        gr.hg19.list <- liftOver(gr, chain)
+        gr.hg19 <- unlist(gr.hg19.list)
+        # seqinfo(gr.hg19) <- SeqinfoForUCSCGenome("hg19")[seqlevels(gr.hg19)]
+        tbl.hg19 <- as.data.frame(gr.hg19)
+        colnames(tbl.hg19)[grep("seqnames", colnames(tbl.hg19))] <- "chrom"
+        tbl.hg19$chrom <- as.character(tbl.hg19$chrom)
+        if(grepl("chr", tbl.hg19$chrom[1]))
+           tbl.hg19$chrom <- sub("chr", "", tbl.hg19$chrom)
+        deleters <- match(c("width", "strand"), colnames(tbl.hg19))
+        if(length(deleters) > 0)
+           tbl.hg19 <- tbl.hg19[, -deleters]
+        tbl.hg19
+        })
+
+#------------------------------------------------------------------------------------------------------------------------
+
