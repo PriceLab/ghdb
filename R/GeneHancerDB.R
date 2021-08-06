@@ -116,6 +116,8 @@ setMethod('retrieveEnhancersFromDatabase',  'GeneHancerDB',
           # an alternative threshold, just in case.
 
         tbl.2 <- subset(tbl.trimmed, !(is.nan(eqtl) & is.nan(hic) & is.nan(erna)) | combinedscore >= 5)
+        if(!grepl("chr", tbl.2$chrom[1]))
+          tbl.2$chrom <- paste0("chr", tbl.2$chrom)
         return(tbl.2)
         })
 
@@ -304,6 +306,8 @@ setMethod('to.hg19',  'GeneHancerDB',
         deleters <- match(c("width", "strand"), colnames(tbl.hg19))
         if(length(deleters) > 0)
            tbl.hg19 <- tbl.hg19[, -deleters]
+        if(!grepl("chr", tbl.hg19$chrom[1]))
+             tbl.hg19$chrom <- paste0("chr", tbl.hg19$chrom)
         tbl.hg19
         })
 

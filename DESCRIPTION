@@ -1,8 +1,8 @@
 Package: ghdb
 Type: Package
 Title: ghdb: GeneHancer database
-Version: 1.0.7
-Date: 2021-06-24
+Version: 1.0.8
+Date: 2021-08-06
 Author: Paul Shannon
 Maintainer: Paul Shannon<pshannon@systemsbiology.org>
 Imports:
