@@ -14,7 +14,8 @@
 #' @import methods
 
 # GENEHANCER_VERSION <- "gh411"
-GENEHANCER_VERSION <- "gh50"
+#GENEHANCER_VERSION <- "gh50"
+GENEHANCER_VERSION <- "gh54"
 
 .GeneHancerDB <- setClass("GeneHancerDB",
                           representation = representation(
