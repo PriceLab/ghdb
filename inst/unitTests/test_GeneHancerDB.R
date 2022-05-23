@@ -161,14 +161,14 @@ test_queryByRegion <- function()
     end   <- 173692966
 
     tbl <- queryByRegion(ghdb, chrom, start, end)
-    checkTrue(nrow(tbl) > 50)   # gh54: 76
+    checkTrue(nrow(tbl) > 50)   # gh54: 76  gh59: 80
     checkTrue(all(tbl$chrom == chrom))
     checkTrue(all(tbl$start >= start))
     checkTrue(all(tbl$end <= end))
 
     tbl.best <- subset(tbl, combinedscore > 250)
     checkTrue(nrow(tbl.best) > 10)   # 15 with gh version 5.0 > 500, 19 >250 in gh54
-    checkTrue(nrow(tbl.best) < 20)
+    checkTrue(nrow(tbl.best) < 30)
 
 } # test_queryByRegion
 #------------------------------------------------------------------------------------------------------------------------
@@ -183,6 +183,18 @@ test_to.hg19 <- function()
    checkEquals(dim(tbl.all), dim(tbl.hg19))
    checkTrue(length(intersect(tbl.all$start, tbl.hg19$start)) == 0)
    checkTrue(all(tbl.all$chrom == tbl.hg19$chrom))
+
+} # test_to.hg19
+#------------------------------------------------------------------------------------------------------------------------
+test_brca1 <- function()
+{
+    message(sprintf("--- test_brca1"))
+    tbl.brca1.tissue <- retrieveEnhancersFromDatabase(ghdb, "BRCA1", "mammary epithelial cell")
+    checkTrue(nrow(tbl.brca1.tissue) < 5)
+
+    tbl.brca1.all <- retrieveEnhancersFromDatabase(ghdb, "BRCA1", "all")
+    checkTrue(nrow(tbl.brca1.all) > 15)
+
 
 } # test_to.hg19
 #------------------------------------------------------------------------------------------------------------------------

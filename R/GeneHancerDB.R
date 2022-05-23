@@ -15,7 +15,8 @@
 
 # GENEHANCER_VERSION <- "gh411"
 #GENEHANCER_VERSION <- "gh50"
-GENEHANCER_VERSION <- "gh54"
+#GENEHANCER_VERSION <- "gh54"
+GENEHANCER_VERSION <- "gh59"
 
 .GeneHancerDB <- setClass("GeneHancerDB",
                           representation = representation(
@@ -42,6 +43,13 @@ setGeneric('to.hg19', signature='obj', function(obj, tbl) standardGeneric('to.hg
 #'
 GeneHancerDB <- function()
 {
+  if(grepl("hagfish", Sys.info()[["nodename"]])){
+     suppressWarnings(
+         db.access.test <- try(system("/sbin/ping -c 1 khaleesi", intern=TRUE, ignore.stderr=TRUE)))
+     if(length(db.access.test) == 0)
+         stop("khaleesi database server unavailable")
+    } # khaleesi access test
+
    db <- NA_character_;
    state <- new.env(parent=emptyenv())
    .GeneHancerDB(db=db, state=state)
