@@ -1,5 +1,6 @@
-#' @importFrom RPostgreSQL dbConnect dbListTables dbGetQuery dbListConnections dbDisconnect
-#' @import RPostgreSQL
+# @importFrom RPostgreSQL dbConnect dbListTables dbGetQuery dbListConnections dbDisconnect
+#' @import DBI
+#' @import RPostgres
 #' @import org.Hs.eg.db
 #' @importFrom methods new
 #' @import GenomicRanges
@@ -16,7 +17,7 @@
 # GENEHANCER_VERSION <- "gh411"
 #GENEHANCER_VERSION <- "gh50"
 #GENEHANCER_VERSION <- "gh54"
-GENEHANCER_VERSION <- "gh59"
+GENEHANCER_VERSION <- "ghdb"
 
 .GeneHancerDB <- setClass("GeneHancerDB",
                           representation = representation(
@@ -43,12 +44,12 @@ setGeneric('to.hg19', signature='obj', function(obj, tbl) standardGeneric('to.hg
 #'
 GeneHancerDB <- function()
 {
-  if(grepl("hagfish", Sys.info()[["nodename"]])){
-     suppressWarnings(
-         db.access.test <- try(system("/sbin/ping -c 1 khaleesi", intern=TRUE, ignore.stderr=TRUE)))
-     if(length(db.access.test) == 0)
-         stop("khaleesi database server unavailable")
-    } # khaleesi access test
+  #if(grepl("hagfish", Sys.info()[["nodename"]])){
+  #   suppressWarnings(
+  #       db.access.test <- try(system("/sbin/ping -c 1 khaleesi", intern=TRUE, ignore.stderr=TRUE)))
+  #   if(length(db.access.test) == 0)
+  #       stop("khaleesi database server unavailable")
+  #  } # khaleesi access test
 
    db <- NA_character_;
    state <- new.env(parent=emptyenv())
@@ -104,9 +105,13 @@ setMethod('retrieveEnhancersFromDatabase',  'GeneHancerDB',
                         "AND e.ghid=a.ghid")
         query <- sprintf(query, targetGene, tissueClause)
 
-        db <- dbConnect(PostgreSQL(), user= "trena", password="trena",
-                        dbname=GENEHANCER_VERSION, #"gh411",
-                        host="khaleesi.systemsbiology.net", port="5432")
+        db <- DBI::dbConnect(RPostgres::Postgres(),
+                     dbname = "ghdb",
+                     host = "localhost",
+                     port = 5444,
+                     user = "ghdb",
+                     password="ghdb")
+
         tbl <- dbGetQuery(db, query)
         dbDisconnect(db)
 
@@ -179,9 +184,12 @@ setMethod('listTissues', 'GeneHancerDB',
           query.p2 <- sprintf("a.symbol='%s' AND a.ghid=t.ghid", targetGene)
           query <- paste0(query.p1, query.p2)
           }
-       db <- dbConnect(PostgreSQL(), user= "trena", password="trena",
-                       dbname=GENEHANCER_VERSION, #"gh411",
-                       host="khaleesi")
+        db <- DBI::dbConnect(RPostgres::Postgres(),
+                     dbname = "ghdb",
+                     host = "localhost",
+                     port = 5444,
+                     user = "ghdb",
+                     password="ghdb")
        result <- dbGetQuery(db, query)$tissue
        dbDisconnect(db)
        return(result)
@@ -268,9 +276,12 @@ setMethod('queryByRegion',  'GeneHancerDB',
                           AND e.element_end <= %d
                           AND a.ghid=e.ghid", chrom, start, end)
 
-        db <- dbConnect(PostgreSQL(), user= "trena", password="trena",
-                        dbname=GENEHANCER_VERSION, #"gh411",
-                        host="khaleesi.systemsbiology.net", port="5432")
+        db <- DBI::dbConnect(RPostgres::Postgres(),
+                     dbname = "ghdb",
+                     host = "localhost",
+                     port = 5444,
+                     user = "ghdb",
+                     password="ghdb")
         tbl <- dbGetQuery(db, query)
         dbDisconnect(db)
 

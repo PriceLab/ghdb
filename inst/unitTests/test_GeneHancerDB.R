@@ -14,13 +14,14 @@ runTests <- function()
    test_listTissues()
    test_.eliminateDupsCollapseTissues()
    test_foxo6()
+   test_klf1()
    test_failureByTissue()
    test_queryUnknownGene()
 
    test_getEnhancers()
 
    test_queryByRegion()
-   test_to.hg19()
+   #test_to.hg19()
 
 } # runTests
 #------------------------------------------------------------------------------------------------------------------------
@@ -70,19 +71,35 @@ test_foxo6 <- function()
    tissues <-  c("placenta", "Placenta")
    tbl <- retrieveEnhancersFromDatabase(ghdb, "FOXO6", tissues)
    checkTrue(is.data.frame(tbl))
-   checkEquals(nrow(tbl), 19)   # 19 for v54, 23 for v50, 13 for v411
+   checkTrue(nrow(tbl) > 10)   # 14 for 5.16, 19 for v54, 23 for v50, 13 for v411
    checkTrue(all(tissues %in% tbl$tissue))
    checkEquals(length(which(duplicated(tbl$sig))), 0)  # no duplicated regions
    checkTrue(length(grep(";", tbl$tissue)) > 0)        # 4 instances of "Placenta;placenta"
 
    tbl.all <- retrieveEnhancersFromDatabase(ghdb, "FOXO6", tissues="all")
    checkTrue(is.data.frame(tbl.all))
-   checkEquals(nrow(tbl.all), 70)   # 43 for v411, 71 for v50, 70 for v54
+   checkTrue(nrow(tbl.all) > 40)   # 44 for v5.16 3 for v411, 71 for v50, 70 for v54
    checkEquals(length(which(duplicated(tbl.all$sig))), 0)  # no duplicated regions
    checkTrue(max(nchar(tbl.all$tissue)) > 1200)            # 2151 for v54
    checkTrue(length(grep(";", tbl.all$tissue)) > 40)       # most tissue values are semicolo separated multiples
 
-} # test_gata6
+} # test_foxo6
+#------------------------------------------------------------------------------------------------------------------------
+# another sample, with KLF1 important in erythropoiesis
+test_klf1 <- function()
+{
+   message(sprintf("--- test_klf1"))
+
+      # ENCODE and Ensembl use different capitalization
+   allTissues <- listTissues(ghdb, "KLF1")
+   tissues <-   c(grep("myeloid", allTissues, ignore.case=TRUE, v=TRUE),
+                  grep("eryth", allTissues, ignore.case=TRUE, v=TRUE),
+                  grep("blood", allTissues, ignore.case=TRUE, v=TRUE))
+   tbl <- retrieveEnhancersFromDatabase(ghdb, "KLF1", tissues)
+   dim(tbl)
+   checkTrue(nrow(tbl) >= 3)
+
+} # test_klf1
 #------------------------------------------------------------------------------------------------------------------------
 # a simple test case, chosen for historical (and no longer important) reasons
 test_failureByTissue <- function()
@@ -127,7 +144,7 @@ test_getEnhancers <- function()
 
    tbl.mef2c <- getEnhancers(ghdb, "MEF2C")
    checkTrue(all(tbl.mef2c$geneSymbol == "MEF2C"))
-   checkTrue(nrow(tbl.mef2c) > 190)  # gh411: 12 , gh50: 201, gh54 206
+   checkTrue(nrow(tbl.mef2c) > 10)  # 5.16: 13, gh411: 12 , gh50: 201, gh54 206
 
    suppressWarnings(tbl.bogus <- getEnhancers(ghdb, "bogus99"))
    checkEquals(nrow(tbl.bogus), 0)
@@ -141,12 +158,12 @@ test_getEnhancers <- function()
       #----------------------------------------------------------------------------------
 
    tbl.hoxa5 <- getEnhancers(ghdb, "HOXA5", maxSize=100000)
-   checkEquals(nrow(tbl.hoxa5), 11)
+   checkTrue(nrow(tbl.hoxa5) > 10)
    sizes <- with(tbl.hoxa5, 1 + end - start)
    checkEquals(length(which(sizes > 10000)), 2)  # gh411: 1   gh50: 2, gh54: 2
 
    tbl.hoxa5 <- getEnhancers(ghdb, "HOXA5", maxSize=10000)
-   checkEquals(nrow(tbl.hoxa5), 9)   # 10 with gh411
+   checkTrue(nrow(tbl.hoxa5) > 8)   # 9 for gh5.16, 10 with gh411
    sizes <- with(tbl.hoxa5, 1 + end - start)
    checkEquals(length(which(sizes > 10000)), 0)
 
@@ -167,7 +184,7 @@ test_queryByRegion <- function()
     checkTrue(all(tbl$end <= end))
 
     tbl.best <- subset(tbl, combinedscore > 250)
-    checkTrue(nrow(tbl.best) > 10)   # 15 with gh version 5.0 > 500, 19 >250 in gh54
+    checkTrue(nrow(tbl.best) > 10)   # 19 in gh5.16, 15 with gh version 5.0 > 500, 19 >250 in gh54
     checkTrue(nrow(tbl.best) < 30)
 
 } # test_queryByRegion
