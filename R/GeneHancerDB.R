@@ -42,7 +42,7 @@ setGeneric('to.hg19', signature='obj', function(obj, tbl) standardGeneric('to.hg
 #'
 #' @export
 #'
-GeneHancerDB <- function()
+GeneHancerDB <- function(host="localhost", port=5444)
 {
   #if(grepl("hagfish", Sys.info()[["nodename"]])){
   #   suppressWarnings(
@@ -52,7 +52,9 @@ GeneHancerDB <- function()
   #  } # khaleesi access test
 
    db <- NA_character_;
-   state <- new.env(parent=emptyenv())
+    state <- new.env(parent=emptyenv())
+    state$host = host
+    state$port = port
    .GeneHancerDB(db=db, state=state)
 
 } # ctor
@@ -107,8 +109,8 @@ setMethod('retrieveEnhancersFromDatabase',  'GeneHancerDB',
 
         db <- DBI::dbConnect(RPostgres::Postgres(),
                      dbname = "ghdb",
-                     host = "localhost",
-                     port = 5444,
+                     host = obj@state$host,
+                     port = obj@state$port,
                      user = "ghdb",
                      password="ghdb")
 
@@ -186,8 +188,8 @@ setMethod('listTissues', 'GeneHancerDB',
           }
         db <- DBI::dbConnect(RPostgres::Postgres(),
                      dbname = "ghdb",
-                     host = "localhost",
-                     port = 5444,
+                     host = obj@state$host,
+                     port = obj@state$port,
                      user = "ghdb",
                      password="ghdb")
        result <- dbGetQuery(db, query)$tissue
@@ -278,8 +280,8 @@ setMethod('queryByRegion',  'GeneHancerDB',
 
         db <- DBI::dbConnect(RPostgres::Postgres(),
                      dbname = "ghdb",
-                     host = "localhost",
-                     port = 5444,
+                     host = obj@state$host,
+                     port = obj@state$port,
                      user = "ghdb",
                      password="ghdb")
         tbl <- dbGetQuery(db, query)

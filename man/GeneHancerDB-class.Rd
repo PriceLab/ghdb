@@ -12,7 +12,7 @@ An object of class \code{character} of length 1.
 \usage{
 GENEHANCER_VERSION
 
-GeneHancerDB()
+GeneHancerDB(host = "localhost", port = 5444)
 }
 \value{
 An object of the GeneHancerDB class
